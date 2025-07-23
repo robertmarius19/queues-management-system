@@ -83,4 +83,16 @@ This Java Swing application simulates a queuing system with multiple service que
 ---
 
 ## 🗂️ Project Structure
-
+  src/
+  ├── org.example.gui/
+  │ ├── SimulationFrame.java
+  │ └── SimulationOutputFrame.java
+  |
+  ├── org.example.bussinesLogic/
+  │ ├── SimulationManager.java ← Orchestrates simulation & metrics
+  │ ├── Scheduler.java ← Dispatch logic based on strategy
+  │ └── SelectionPolicy.java
+  │
+  └── org.example.model/
+  ├── Task.java ← Client model (arrival, service, waiting)
+  └── Server.java ← Multi-threaded server implementation
