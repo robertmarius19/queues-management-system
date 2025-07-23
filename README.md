@@ -1,109 +1,86 @@
-Queue Management Simulation 🕒
-A Java multithreaded simulation that models N clients arriving, queuing across Q service threads, being served, and exiting. It calculates:
+# 🧮 Queue Management Simulation
 
-Average Waiting Time – how long each client waits before being served
+## 📘 Overview
+This Java Swing application simulates a queuing system with multiple service queues, where **N clients** arrive, wait their turn, get served, and then leave. The simulation supports multi-threaded queue processing using the `Server` class, each running on its own thread and managed via a `BlockingQueue`. Results include **average waiting time**, **average service time**, and **peak hour** of maximum load.
 
-Average Service Time – the actual time taken to serve each client
+---
 
-Peak Hour – timestamp when the system has the most queued tasks
+## 🔧 Features
 
-🧩 Features
-Multi-threaded servers processing from BlockingQueue<Task>
+- **🏃 Multithreaded Servers**
+  - Each service queue runs within its own `Thread`, ensuring realistic, concurrent client handling.
+  - Threads continuously process tasks in parallel until service completes or the simulation ends.
 
-Configurable via GUI: number of clients, queues, arrival/service ranges, simulation time, and scheduling policy
+- **📋 Task Scheduling**
+  - New clients are dispatched based on either **shortest queue** or **shortest waiting time**, according to the selected `SelectionPolicy`.
+  - `Scheduler` balances load across available servers.
 
-Early termination when there are no pending or in-service tasks
+- **📊 Metrics Generation**
+  - **Peak Hour**: Tracks the simulation time with the highest number of in-queue tasks.
+  - **Average Waiting Time**: Time each client spends waiting before service.
+  - **Average Service Time**: Actual time taken to complete each service task.
 
-Output both in GUI window and SimulationOutput.txt
+---
 
-🚀 How to Run in an IDE
-Pre-requisites:
-Java 11+ JDK installed
+## 🧠 How It Works
 
-Preferably IntelliJ IDEA (Community/Ultimate) or Eclipse
+1. **Client Generation**  
+   - N clients are generated with random **arrival** and **service** times within user-defined ranges.
+   - Tasks are sorted by arrival time before dispatch.
 
-IntelliJ IDEA:
-Clone the repository
+2. **Simulation Loop**  
+   - Runs up to `simInterval` seconds or stops early if all queues and waiting clients are clear.
+   - Each second:
+     - Dispatch incoming clients to queues.
+     - Queue threads concurrently handle servicing using `BlockingQueue`.
+     - Records current queue states, waiting lists, and updates metrics (peak hour).
 
-bash
-Copy
-Edit
-git clone https://...your-repo.git  
-Open in IntelliJ
-File → Open... → choose project root
+3. **Task Handling**  
+   - When assigned, a `Server.addTask(task)` records the client’s queue entry time.
+   - In the server’s `run()` method (separate thread), tasks are serviced one time-unit per cycle.
+   - Once service completes, the task is logged into `servedTasks` for final metrics.
 
-Set SDK
-File → Project Structure → Project → set Project SDK to Java 11+
+4. **Results Output**  
+   - The GUI “Simulation Output” and `SimulationOutput.txt` file show:
+     - Time logs per tick
+     - Final **Average Service Time**
+     - Final **Average Waiting Time**
+     - **Peak Hour**
 
-Build project
-Build → Build Project
+---
 
-Run main class
-Run → Edit Configurations → + → “Application” → Main class: org.example.gui.SimulationFrame
-Click “Run” (▶)
+## 🧩 Getting Started
 
-Eclipse:
-Import project
-File → Import → “Existing Maven Projects” (or simply a Java project)
+1. **Import into IDE**
+   - Clone the repo and import as a **Java project** in IntelliJ IDEA or Eclipse.
 
-Set Java compiler
-Project → Properties → Java Compiler → enable “Use compliance from execution environment: JavaSE‑11”
+2. **Dependencies**
+   - Uses standard Java JDK (no external libraries).
+   - Includes Swing (`javax.swing`) for the GUI.
 
-Run main
-Right-click SimulationFrame.java → Run As → Java Application
+3. **Run the Simulation**
+   - Launch `SimulationFrame` from IDE.
+   - Input:
+     - Number of clients & queues
+     - Simulation time (seconds)
+     - Min/max arrival & service times
+     - Selection strategy (Shortest Queue or Shortest Waiting Time)
+   - Click **Start Simulation** to run.
 
-🖥️ Usage
-Launch the app; it opens a window with fields:
+4. **View Results**
+   - Real-time logs appear in the GUI output window.
+   - Final metrics are saved in `SimulationOutput.txt` in the project root.
 
-Number of Clients – total tasks
+---
 
-Number of Queues – number of servers
+## ☕ Multithreading Details
 
-Simulation Time – max seconds to simulate
+- Each `Server` object implements `Runnable`, with its own internal queue and processing thread.
+- Concurrency is managed by `BlockingQueue`, ensuring thread-safe task enqueuing/dequeuing.
+- The GUI/main thread dispatches tasks in real time, while server threads work independently, simulating real-world simultaneous service points.
+- Each server thread uses `Thread.sleep()` in its loop to simulate 1-second service intervals.
 
-Arrival Time Range – min/max arrival moments
+---
 
-Service Time Range – min/max processing time
+## 🗂️ Project Structure
 
-Strategy – e.g. shortest queue
-
-Click Start Simulation
-
-A separate output window appears showing real-time queue states
-
-Console + file SimulationOutput.txt will show final stats:
-
-sql
-Copy
-Edit
-Simulation completed.
-Average Service Time: X.XX
-Average Waiting Time: Y.YY
-Peak Hour: Z
-📂 Project Structure
-pgsql
-Copy
-Edit
-src/main/java/
-├── org.example.gui
-│   ├── SimulationFrame.java      ← GUI input form
-│   └── SimulationOutputFrame.java ← Real-time text output
-├── org.example.bussinesLogic
-│   └── SimulationManager.java    ← Orchestrates arrivals and calculations
-├── org.example.model
-│   ├── Task.java                ← Represents client job + arrival/time tracking
-│   └── Server.java              ← Runnable server managing queue + processing
-└── org.example.bussinesLogic
-    └── Scheduler.java          ← Dispatch logic based on policy
-📊 Metrics
-Metric	How it’s calculated
-Waiting Time	(service start time) − (arrival time)
-Service Time	The original task service duration
-Peak Hour	Simulation second when total queued tasks was highest
-
-🧩 Customize and Extend
-Scheduling strategies: Add more policies to Scheduler
-
-Visual output: Enhance SimulationOutputFrame (charts, tables)
-
-Logging/export: Allow CSV/JSON output via SimulationManager
